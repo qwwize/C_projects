@@ -1,0 +1,30 @@
+//  Задача , что в лабиринте нужно довести робота до выхода
+namespace Mazes;
+
+public static class EmptyMazeTask
+{
+    public static void MoveOut(Robot robot, int width, int height)
+    {
+        //движение вправо и вниз из верхней левой точки
+        int rightSteps = width - 3;  //(width-2)-1 
+        int downSteps = height - 3; //(height-2)-1
+
+        MoveHorizontal(robot, rightSteps);
+        MoveVertical(robot, downSteps);
+        
+        static void MoveHorizontal(Robot robot, int steps)
+        {   
+            //движение вправо steps раз
+            for (int i = 0; i < steps; i++)
+                robot.MoveTo(Direction.Right);
+        }
+
+        static void MoveVertical(Robot robot, int steps)
+        {
+            //движение вниз steps раз
+            for (int i = 0; i < steps; i++)
+                robot.MoveTo(Direction.Down);
+        }
+    }
+}
+
