@@ -1,0 +1,47 @@
+// Вставьте сюда финальное содержимое файла DistanceTask.cs
+using System;
+
+namespace DistanceTask
+{
+    public static class DistanceTask
+    {
+        // Расстояние от точки (x, y) до отрезка AB (A(ax, ay), B(bx, by))
+        public static double GetDistanceToSegment(double ax, double ay, double bx, double by, double x, double y)
+        {
+            //вктор AB и вектор AP
+            double ABx = bx - ax;
+            double ABy = by - ay;
+            double APx = x - ax;
+            double APy = y - ay;
+
+            //скалярное произведение и квадрат длины отрезка AB
+            double AB_AB = ABx * ABx + ABy * ABy; 
+            double AB_AP = ABx * APx + ABy * APy;
+
+            //если A и B совпадают = отрезок вырожден в точку
+            if (AB_AB == 0)
+                return Math.Sqrt(APx * APx + APy * APy);
+
+            //находим проекцию точки P на прямую AB
+            double t = AB_AP / AB_AB;
+
+            //если проекция выходит за пределы отрезка, берём ближайший конец
+            if (t < 0)
+                t = 0;
+            else if (t > 1)
+                t = 1;
+
+            //координаты ближайшей точки на отрезке
+            double closestX = ax + t * ABx;
+            double closestY = ay + t * ABy;
+
+            //возвращаем расстояние до неё
+            double dx = x - closestX;
+            double dy = y - closestY;
+
+            return Math.Sqrt(dx * dx + dy * dy);
+        }
+    }
+}
+
+
