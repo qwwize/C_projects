@@ -1,0 +1,12 @@
+//задача по расчёту банковских процентов
+public static double Calculate(string userInput)
+{
+	string[] parts = userInput.Split();
+	double principal = double.Parse(parts[0]);
+	double rate = double.Parse(parts[1]);
+	int months = int.Parse(parts[2]);
+
+	double monthRate = rate / 12 / 100;
+	double total = principal * Math.Pow(1 + monthRate, months);
+	return total;
+}
