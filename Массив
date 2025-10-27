@@ -1,0 +1,23 @@
+// Программа находит максимальный, минимальный и средний элементы массива, введённого пользователем.
+using System;
+using System.Linq;
+
+class Program
+{
+    static void Main()
+    {
+        Console.WriteLine("Введите числа через пробел:");
+        int[] numbers = Console.ReadLine()
+            .Split(' ')
+            .Select(int.Parse)
+            .ToArray();
+
+        int max = numbers.Max();
+        int min = numbers.Min();
+        double avg = numbers.Average();
+
+        Console.WriteLine($"Максимум: {max}");
+        Console.WriteLine($"Минимум: {min}");
+        Console.WriteLine($"Среднее: {avg:F2}");
+    }
+}
