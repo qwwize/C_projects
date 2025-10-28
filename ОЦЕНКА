@@ -1,0 +1,22 @@
+//определение оценки от 0-100
+using System;
+
+class Program
+{
+    static void Main()
+    {
+        Console.Write("Введите балл: ");
+        int score = int.Parse(Console.ReadLine());
+
+        if (score >= 90 && score <= 100)
+            Console.WriteLine("Оценка: Отлично");
+        else if (score >= 75 && score < 90)
+            Console.WriteLine("Оценка: Хорошо");
+        else if (score >= 50 && score < 75)
+            Console.WriteLine("Оценка: Удовлетворительно");
+        else if (score >= 0 && score < 50)
+            Console.WriteLine("Оценка: Неудовлетворительно");
+        else
+            Console.WriteLine("Некорректный балл");
+    }
+}
