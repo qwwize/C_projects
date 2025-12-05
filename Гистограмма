@@ -1,0 +1,27 @@
+namespace Names;
+
+internal static class HistogramTask
+{
+    public static HistogramData GetBirthsPerDayHistogram(NameData[] names, string name)
+    {
+        // Создаем метки для дней от 1 до 31
+        var days = new string[31];
+        for (var i = 0; i < days.Length; i++)
+            days[i] = (i + 1).ToString();
+        
+        // Создаем массив для подсчета рождений
+        var birthCounts = new double[31];
+        
+        // Подсчитываем рождения для заданного имени, исключая 1 число
+        foreach (var person in names)
+        {
+            if (person.Name == name && person.BirthDate.Day != 1)
+                birthCounts[person.BirthDate.Day - 1]++;
+        }
+        
+        return new HistogramData(
+            $"Рождаемость людей с именем '{name}'", 
+            days, 
+            birthCounts);
+    }
+}
