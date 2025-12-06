@@ -1,0 +1,46 @@
+// Вставьте сюда финальное содержимое файла TextGeneratorTask.cs
+using System.Security.AccessControl;
+using System.Text;
+using NUnit.Framework;
+
+namespace TextAnalysis;
+
+static class TextGeneratorTask
+{
+    public static string CreateNextWord(List<string> resultedPhrase, Dictionary<string, string> nextWords,
+        string continuation)
+    {
+        if (nextWords.ContainsKey(continuation))
+            return nextWords[continuation];
+        if (nextWords.ContainsKey(resultedPhrase[^1]))
+            return nextWords[resultedPhrase[^1]];
+        return String.Empty;
+    }
+
+    public static string ContinuePhrase(Dictionary<string, string> nextWords, string phraseBeginning, int wordsCount)
+    {
+        var resultedPhrase = new List<string>(phraseBeginning.Split());
+        if (nextWords.Count == 0 || wordsCount == 0) return phraseBeginning;
+        if (resultedPhrase.Count == 1)
+            if (nextWords.ContainsKey(resultedPhrase[0]))
+            {
+                resultedPhrase.Add(nextWords[resultedPhrase[0]]);
+                wordsCount--;
+            }
+            else return phraseBeginning;
+
+        for (int i = 0; i < wordsCount; i++)
+        {
+            // чтобы 2 раза не создавать строку 
+            var bigram = resultedPhrase[^2] + " " + resultedPhrase[^1];
+
+            if (!nextWords.ContainsKey(resultedPhrase[^1])
+                && !nextWords.ContainsKey(bigram)) break; // если нет продолжений
+            var continuation = (resultedPhrase.Count() >= 2) ? bigram : resultedPhrase[^1];
+            resultedPhrase.Add(CreateNextWord(resultedPhrase, nextWords, continuation));
+        }
+
+        return string.Join(" ", resultedPhrase).TrimEnd(' ');
+    }
+}
+
