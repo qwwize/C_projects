@@ -1,46 +1,15 @@
-// Вставьте сюда финальное содержимое файла TextGeneratorTask.cs
-using System.Security.AccessControl;
-using System.Text;
-using NUnit.Framework;
+using System;
+using System.Collections.Generic;
 
-namespace TextAnalysis;
-
-static class TextGeneratorTask
+namespace TextAnalysis
 {
-    public static string CreateNextWord(List<string> resultedPhrase, Dictionary<string, string> nextWords,
-        string continuation)
+    static class TextGeneratorTask
     {
-        if (nextWords.ContainsKey(continuation))
-            return nextWords[continuation];
-        if (nextWords.ContainsKey(resultedPhrase[^1]))
-            return nextWords[resultedPhrase[^1]];
-        return String.Empty;
-    }
-
-    public static string ContinuePhrase(Dictionary<string, string> nextWords, string phraseBeginning, int wordsCount)
-    {
-        var resultedPhrase = new List<string>(phraseBeginning.Split());
-        if (nextWords.Count == 0 || wordsCount == 0) return phraseBeginning;
-        if (resultedPhrase.Count == 1)
-            if (nextWords.ContainsKey(resultedPhrase[0]))
-            {
-                resultedPhrase.Add(nextWords[resultedPhrase[0]]);
-                wordsCount--;
-            }
-            else return phraseBeginning;
-
-        for (int i = 0; i < wordsCount; i++)
+        /// <summary>
+        /// Возвращает следующее слово по двухсловному (bigram) или однословному ключу.
+        /// Предпочитает bigram, затем unigram. Возвращает пустую строку, если продолжение не найдено.
+        /// </summary>
+        public static string CreateNextWord(IReadOnlyList<string> resultedPhrase, IReadOnlyDictionary<string, string> nextWords, string continuation)
         {
-            // чтобы 2 раза не создавать строку 
-            var bigram = resultedPhrase[^2] + " " + resultedPhrase[^1];
-
-            if (!nextWords.ContainsKey(resultedPhrase[^1])
-                && !nextWords.ContainsKey(bigram)) break; // если нет продолжений
-            var continuation = (resultedPhrase.Count() >= 2) ? bigram : resultedPhrase[^1];
-            resultedPhrase.Add(CreateNextWord(resultedPhrase, nextWords, continuation));
-        }
-
-        return string.Join(" ", resultedPhrase).TrimEnd(' ');
-    }
-}
-
+            if (nextWords is null) throw new ArgumentNullException(nameof(nextWords));
+            if (!string.IsNullOrEmpty(continuation) && nextWords.TryGetValue(continuation, ou
