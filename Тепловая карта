@@ -1,20 +1,34 @@
 using System;
- 
+using System.Linq;
+
 namespace Names
 {
     internal static class HeatmapTask
     {
-        public static HeatmapData GetBirthsPerDateHeatmap(NameData[] names){
-            string[] days = new string[30];
-            string[] months = new string[12];
-            double[,] heat = new double[30,12];
-            int i = 2;
-            while (i<=31){ days[i-2] = i.ToString(); i++; }
-            i = 1;
-            while (i<=12) {months[i-1] = i.ToString(); i++; }
+        public static HeatmapData GetBirthsPerDateHeatmap(NameData[] names)
+        {
+            // Защита от null
+            names ??= Array.Empty<NameData>();
+
+            // Дни: "2".."31" (30 элементов), месяцы: "1".."12"
+            string[] days = Enumerable.Range(2, 30).Select(d => d.ToString()).ToArray();
+            string[] months = Enumerable.Range(1, 12).Select(m => m.ToString()).ToArray();
+
+            var heat = new double[30, 12];
+
             foreach (var name in names)
-                if (name.BirthDate.Day != 1)
-                    heat[name.BirthDate.Day - 2, name.BirthDate.Month - 1]++;
+            {
+                var bd = name?.BirthDate ?? default;
+                int day = bd.Day;
+                int month = bd.Month;
+
+                // Игнорируем 1-е число и некорректные даты вне ожидаемого диапазона
+                if (day <= 1 || day > 31 || month < 1 || month > 12) 
+                    continue;
+
+                heat[day - 2, month - 1]++;
+            }
+
             return new HeatmapData("Пример карты интенсивностей", heat, days, months);
         }
     }
