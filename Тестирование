@@ -1,0 +1,30 @@
+			// Вставляйте сюда свои тесты
+			[TestCase("", new string[0])]    		
+			[TestCase(@" '' ", new[] { "" })]
+			[TestCase("ulearn", new[] { "ulearn" })]
+			[TestCase("ulearn top", new[] { "ulearn", "top" })]
+			[TestCase(@"""y u r i""y", new []{"y u r i","y"})]
+			[TestCase(@"y""u r i y""", new []{"y", "u r i y"})]
+			[TestCase("'ulearn top'", new[]{"ulearn top"})]
+			[TestCase(@"'""ulearn""", new []{@"""ulearn""" })]
+			[TestCase(@"""u 'r' 'f' u""", new[]{"u 'r' 'f' u"})]
+			[TestCase(" ulearn ", new []{"ulearn"})]
+			[TestCase(@"""ulearn ", new[]{"ulearn "})]
+			[TestCase(@"""\\""", new[]{"\\"})]
+			[TestCase(@"""""", new[]{@""})]   
+			[TestCase("\'\\\'ulearn\\\'\'", new[] {"\'ulearn\'"})]
+			[TestCase("ulearn  top", new[] {"ulearn", "top"})]
+			[TestCase("\"'ulearn'\"", new[] { "'ulearn'" })]
+			[TestCase("'\\\'a\\\''", new[]{"\'a\'"})]
+			[TestCase("\"\\\\\"", new[] {"\\"})]
+			[TestCase("\"\\\"ulearn\\\"\"",new []{"\"ulearn\""})]
+
+			
+
+            public static void RunTests(string input, string[] expectedOutput)
+            {
+            // Тело метода изменять не нужно
+            	Test(input, expectedOutput);
+            }
+            
+      
