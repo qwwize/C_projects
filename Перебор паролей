@@ -1,0 +1,39 @@
+// Вставьте сюда финальное содержимое файла CaseAlternatorTask.cs
+using System.Threading.Tasks.Dataflow;
+
+namespace Passwords;
+
+public class CaseAlternatorTask
+{
+    //Тесты будут вызывать этот метод
+    public static List<string> AlternateCharCases(string lowercaseWord)
+    {
+        var result = new List<string>();
+        AlternateCharCases(lowercaseWord.ToCharArray(), 0, result);
+        return result;
+    }
+
+    static void AlternateCharCases(char[] word, int startIndex, List<string> result)
+    {
+        if (startIndex == word.Length)
+        {
+            var wordString = string.Join("", word);
+            if (!result.Contains(wordString))
+                result.Add(wordString);
+            return;
+        }
+
+        if (char.IsLetter(word[startIndex]))
+        {
+            // нижний 
+            word[startIndex] = char.ToLower(word[startIndex]);
+            AlternateCharCases(word, (startIndex + 1), result);
+
+            // верхний
+            word[startIndex] = char.ToUpper(word[startIndex]);
+            AlternateCharCases(word, (startIndex + 1), result);
+        }
+        else
+            AlternateCharCases(word, (startIndex + 1), result);
+    }
+}
