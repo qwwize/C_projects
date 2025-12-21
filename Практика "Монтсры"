@@ -1,0 +1,175 @@
+using System;
+using Avalonia.Input;
+using Digger.Architecture;
+
+namespace Digger;
+
+public class Terrain : ICreature
+{
+    public int GetDrawingPriority() => 2;
+
+    public string GetImageFileName() => "Terrain.png";
+
+    public CreatureCommand Act(int x, int y) => new() { DeltaX = 0, DeltaY = 0, TransformTo = null };
+
+    public bool DeadInConflict(ICreature conflictedObject) => true;
+}
+
+public class Player : ICreature
+{
+    public static int X;
+    public static int Y;
+
+    public CreatureCommand Act(int x, int y)
+    {
+        X = x;
+        Y = y;
+
+        var deltaX = 0;
+        var deltaY = 0;
+
+        switch (Game.KeyPressed)
+        {
+            case Key.Left when x > 0:
+                deltaX = -1;
+                break;
+            case Key.Up when y > 0:
+                deltaY = -1;
+                break;
+            case Key.Right when Game.MapWidth > x + 1:
+                deltaX = 1;
+                break;
+            case Key.Down when Game.MapHeight > y + 1:
+                deltaY = 1;
+                break;
+            default:
+                return new CreatureCommand { DeltaX = 0, DeltaY = 0, TransformTo = null };
+        }
+
+        return Game.Map[x + deltaX, y + deltaY] is Sack
+            ? new CreatureCommand { DeltaX = 0, DeltaY = 0, TransformTo = null }
+            : new CreatureCommand { DeltaX = deltaX, DeltaY = deltaY, TransformTo = null };
+    }
+
+    public string GetImageFileName() => "Digger.png";
+
+    public int GetDrawingPriority() => 1;
+
+    public bool DeadInConflict(ICreature conflictedObject)
+    {
+        if (conflictedObject is Gold)
+            Game.Scores += 10;
+        return conflictedObject is Sack or Monster;
+    }
+}
+
+public class Sack : ICreature
+{
+    private int _fallingDistance = 0;
+
+    public CreatureCommand Act(int x, int y)
+    {
+        if (y + 1 < Game.MapHeight)
+        {
+            if (Game.Map[x, y + 1] == null ||
+                _fallingDistance > 0 && (Game.Map[x, y + 1] is Player || Game.Map[x, y + 1] is Monster))
+            {
+                _fallingDistance++;
+                return new CreatureCommand() { DeltaX = 0, DeltaY = 1, TransformTo = null };
+            }
+        }
+
+        if (_fallingDistance > 1)
+        {
+            _fallingDistance = 0;
+            return new CreatureCommand() { DeltaX = 0, DeltaY = 0, TransformTo = new Gold() };
+        }
+
+        _fallingDistance = 0;
+        return new CreatureCommand() { DeltaX = 0, DeltaY = 0 };
+    }
+
+    public string GetImageFileName() => "Sack.png";
+
+    public int GetDrawingPriority() => 1;
+
+    public bool DeadInConflict(ICreature conflictedObject) => false;
+}
+
+public class Gold : ICreature
+{
+    public string GetImageFileName() => "Gold.png";
+
+    public int GetDrawingPriority() => 2;
+
+    public CreatureCommand Act(int x, int y) => new() { DeltaX = 0, DeltaY = 0 };
+
+    public bool DeadInConflict(ICreature conflictedObject) => true;
+}
+
+public class Monster : ICreature
+{
+    public CreatureCommand Act(int x, int y)
+    {
+        if (!IsDiggerFound())
+            return Stop();
+
+        var (deltaX, deltaY) = CalculateDelta(x, y);
+
+        if (!IsInsideMap(x + deltaX, y + deltaY) || !CanMoveTo(x + deltaX, y + deltaY))
+            return Stop();
+
+        return new CreatureCommand { DeltaX = deltaX, DeltaY = deltaY };
+    }
+
+    private static CreatureCommand Stop() => new() { DeltaX = 0, DeltaY = 0 };
+
+    private static (int deltaX, int deltaY) CalculateDelta(int x, int y)
+    {
+        int deltaX = 0, deltaY = 0;
+
+        if (Player.X == x)
+            deltaY = Player.Y < y ? -1 : Player.Y > y ? 1 : 0;
+        else if (Player.Y == y)
+            deltaX = Player.X < x ? -1 : Player.X > x ? 1 : 0;
+        else
+            deltaX = Player.X < x ? -1 : Player.X > x ? 1 : 0;
+
+        return (deltaX, deltaY);
+    }
+
+    private static bool IsInsideMap(int x, int y)
+    {
+        return x >= 0 && x < Game.MapWidth && y >= 0 && y < Game.MapHeight;
+    }
+
+    private static bool CanMoveTo(int x, int y)
+    {
+        return Game.Map[x, y] is not (Terrain or Sack or Monster) || Game.Map[x, y] == null;
+    }
+
+    private static bool IsDiggerFound()
+    {
+        for (var i = 0; i < Game.MapWidth; i++)
+        {
+            for (var j = 0; j < Game.MapHeight; j++)
+            {
+                if (Game.Map[i, j] is Player)
+                {
+                    Player.X = i;
+                    Player.Y = j;
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public bool DeadInConflict(ICreature conflictedObject)
+        => conflictedObject is Sack or Monster;
+
+    public int GetDrawingPriority() => 0;
+
+    public string GetImageFileName() => "Monster.png";
+}
