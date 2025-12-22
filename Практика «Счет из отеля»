@@ -1,0 +1,71 @@
+// Вставьте сюда финальное содержимое файла AccountingModel.cs
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace HotelAccounting;
+
+public class AccountingModel : ModelBase
+{
+    private double _price; // >= 0
+    private double _nightsCount; // > 0
+    private double _discount; // R
+    private double _total; // >= 0 (формула)
+    
+    private void RecalculateTotal() => _total = _price * _nightsCount * (1 - _discount / 100);
+
+    public double Price
+    {
+        get => _price;
+        set
+        {
+            if (value < 0) throw new ArgumentException();
+            _price = value;
+            RecalculateTotal(); 
+            Notify(nameof(Price));
+            Notify(nameof(Total));
+        }
+    }
+
+    public double NightsCount
+    {
+        get => _nightsCount;
+        set
+        {
+            if (value <= 0) throw new ArgumentException();
+            _nightsCount = value;
+            RecalculateTotal();
+            Notify(nameof(NightsCount));
+            Notify(nameof(Total));
+        }
+    }
+
+    public double Discount
+    {
+        get => _discount;
+        set
+        {
+            if (value > 100) throw new ArgumentException();
+            _discount = value;
+            RecalculateTotal();
+            Notify(nameof(Discount));
+            Notify(nameof(Total));
+        }
+    }
+
+    public double Total
+    {
+        get => _total;
+        set
+        {
+            if (value < 0) throw new ArgumentException();
+            _total = value;
+            _discount = (1 - _total / (_price * _nightsCount)) * 100; // обновление Discount
+            Notify(nameof(Total));
+            Notify(nameof(Discount));
+        }
+    }
+}
+
