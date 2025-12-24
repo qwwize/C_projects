@@ -1,0 +1,50 @@
+// Вставьте сюда финальное содержимое файла ExperimentsTask.cs
+using System.Collections.Generic;
+
+namespace StructBenchmarking;
+
+public class Experiments
+{
+    public static ChartData BuildChartDataForArrayCreation(IBenchmark benchmark, int repetitionsCount)
+    {
+        var classesIntervals = new List<ExperimentResult>();
+        var structuresIntervals = new List<ExperimentResult>();
+
+        foreach (var count in Constants.FieldCounts)
+        {
+            var classArray = new ClassArrayCreationTask(count);
+            var structArray = new StructArrayCreationTask(count);
+
+            var classInterval = benchmark.MeasureDurationInMs(classArray, repetitionsCount);
+            var structInterval = benchmark.MeasureDurationInMs(structArray, repetitionsCount);
+
+            classesIntervals.Add(new ExperimentResult(count, classInterval));
+            structuresIntervals.Add(new ExperimentResult(count, structInterval));
+        }
+
+        return new ChartData
+            { Title = "Create array", ClassPoints = classesIntervals, StructPoints = structuresIntervals };
+    }
+
+    public static ChartData BuildChartDataForMethodCall(IBenchmark benchmark, int repetitionsCount)
+    {
+        var classesTimes = new List<ExperimentResult>();
+        var structuresTimes = new List<ExperimentResult>();
+
+        foreach (var count in Constants.FieldCounts)
+        {
+            var classMethodCall = new MethodCallWithClassArgumentTask(count);
+            var structMethodCall = new MethodCallWithStructArgumentTask(count);
+
+            var classInterval = benchmark.MeasureDurationInMs(classMethodCall, repetitionsCount);
+            var structInterval = benchmark.MeasureDurationInMs(structMethodCall, repetitionsCount);
+
+            classesTimes.Add(new ExperimentResult(count, classInterval));
+            structuresTimes.Add(new ExperimentResult(count, structInterval));
+        }
+
+        return new ChartData
+            { Title = "Call method with argument", ClassPoints = classesTimes, StructPoints = structuresTimes };
+    }
+}
+
