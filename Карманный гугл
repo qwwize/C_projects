@@ -1,0 +1,60 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace PocketGoogle;
+
+public class Indexer : IIndexer
+{
+    private char[] _separators = { ' ', '.', ',', '!', '?', ':', '-', '\r', '\n' };
+    private readonly Dictionary<int, Dictionary<string, List<int>>> _wordsPositionsIDs = new();
+    private readonly Dictionary<string, HashSet<int>> _wordIDs = new();
+
+    public void Add(int id, string documentText)
+    {
+        var wordsArray = documentText.Split(_separators);
+        _wordsPositionsIDs.Add(id, new Dictionary<string, List<int>>());
+
+        var currentPosition = 0;
+        foreach (var word in wordsArray)
+        {
+            if (!_wordIDs.ContainsKey(word)) _wordIDs[word] = new HashSet<int>();
+
+            if (!_wordIDs[word].Contains(id)) _wordIDs[word].Add(id);
+
+            if (!_wordsPositionsIDs[id].ContainsKey(word)) _wordsPositionsIDs[id].Add(word, new List<int>());
+
+            _wordsPositionsIDs[id][word].Add(currentPosition);
+            currentPosition += word.Length + 1;
+        }
+    }
+
+    public List<int> GetIds(string word)
+    {
+        if (_wordIDs.TryGetValue(word, out var dictionary)) return dictionary.ToList();
+        return new List<int>();
+    }
+
+    public List<int> GetPositions(int id, string word)
+    {
+        var positionsList = new List<int>();
+
+        if (_wordsPositionsIDs[id].ContainsKey(word) && _wordsPositionsIDs.TryGetValue(id, out var dictionary))
+            positionsList = dictionary[word];
+
+        return positionsList;
+    }
+
+    public void Remove(int id)
+    {
+        var wordsArray = _wordsPositionsIDs[id].Keys.ToArray();
+
+        foreach (var word in wordsArray)
+		{
+			_wordIDs[word].Remove(id);
+		}
+        _wordsPositionsIDs.Remove(id);
+    }
+}
